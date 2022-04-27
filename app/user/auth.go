@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/unownone/gweeter/app/response"
-	"github.com/unownone/gweeter/db"
+	"github.com/unownone/go-chat/app/response"
+	"github.com/unownone/go-chat/db"
 	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/crypto/bcrypt"
 )

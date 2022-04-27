@@ -2,8 +2,8 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
-	auth "github.com/unownone/gweeter/app/user"
-	"github.com/unownone/gweeter/middleware"
+	auth "github.com/unownone/go-chat/app/user"
+	"github.com/unownone/go-chat/middleware"
 )
 
 func Auth(base string, app *fiber.App) {
