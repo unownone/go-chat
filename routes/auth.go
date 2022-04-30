@@ -6,8 +6,11 @@ import (
 	"github.com/unownone/go-chat/middleware"
 )
 
+// Base Route = /api/v1/auth
 func Auth(base string, app *fiber.App) {
 
 	app.Post(base+"/register", auth.Signup)
-	app.Get(base+"/current-user", middleware.VerifyJwt(auth.CurrentUser))
+	app.Post(base+"/login", auth.Login)
+	app.Post(base+"/refresh", auth.RefreshToken)
+	app.Get(base+"/current-user", middleware.VerifyJwtWithClaim(auth.CurrentUser))
 }

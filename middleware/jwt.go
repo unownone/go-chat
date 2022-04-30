@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -35,7 +34,6 @@ func VerifyJwt(wrapper func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {
 		})
 
 		if err != nil {
-			fmt.Println(err)
 			if err == jwt.ErrSignatureInvalid {
 				return c.Status(401).SendString("Unauthorized 1")
 			}
@@ -65,14 +63,13 @@ func VerifyJwtWithClaim(wrapper func(c *fiber.Ctx, claims *jwt.RegisteredClaims)
 			return jwt_key, nil
 		})
 		if err != nil {
-			fmt.Println(err)
 			if err == jwt.ErrSignatureInvalid {
-				return c.Status(401).SendString("Unauthorized 1")
+				return c.Status(401).SendString("Unauthorized")
 			}
-			return c.Status(401).SendString("Unauthorized 2")
+			return c.Status(401).SendString("Unauthorized")
 		}
 		if !tkn.Valid {
-			return c.Status(401).SendString("Unauthorized 3")
+			return c.Status(401).SendString("Unauthorized")
 		}
 		return wrapper(c, claims)
 	}

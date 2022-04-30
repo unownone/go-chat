@@ -21,7 +21,10 @@ func main() {
 		AllowCredentials: true,
 	}))
 
+	// Auth Routes
 	routes.Auth("/api/v1/auth", app)
 
+	// Chat Routes
+	routes.Chat("/api/v1/chat", app)
 	app.Listen("localhost:" + os.Getenv("PORT"))
 }
