@@ -2,6 +2,7 @@ package auth
 
 import (
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -67,4 +68,19 @@ func RefreshToken(c *fiber.Ctx) error {
 	tokens.RefreshToken = refresh
 
 	return c.JSON(tokens)
+}
+
+func VerifyJwtSess(token string) (string, bool) {
+	claims := &jwt.RegisteredClaims{}
+	token = strings.TrimPrefix(token, "Bearer ")
+	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return SecretKey, nil
+	})
+	if err != nil {
+		return "", false
+	}
+	if claims.ExpiresAt.Unix() < time.Now().Unix() {
+		return "", false
+	}
+	return claims.Issuer, true
 }

@@ -2,24 +2,13 @@ package chat
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
+	auth "github.com/unownone/go-chat/app/user"
+	"github.com/unownone/go-chat/db"
 )
-
-type Hub struct {
-	// Registered clients.
-	clients map[*websocket.Conn]bool
-
-	// Inbound messages from the clients.
-	broadcast chan []byte
-
-	// Register requests from the clients.
-	register chan *websocket.Conn
-
-	// Unregister requests from clients.
-	unregister chan *websocket.Conn
-}
 
 func GetSocketUpgrade(c *fiber.Ctx) error {
 	if websocket.IsWebSocketUpgrade(c) {
@@ -30,19 +19,68 @@ func GetSocketUpgrade(c *fiber.Ctx) error {
 }
 
 func ChatConnection(c *websocket.Conn) {
-	var (
-		mt  int
-		msg []byte
-		err error
-	)
-	for {
-		if mt, msg, err = c.ReadMessage(); err != nil {
-			c.WriteMessage(mt, []byte("Error Occured!"))
+	curr_hub := new(Hub)
+	Username := ""
+	var authorized = false
+	sess := c.Params("sess")
+	if sess == "" {
+		c.WriteMessage(websocket.TextMessage, []byte("UnAuthorized 1"))
+		c.Close()
+	} else {
+		user, verif := auth.VerifyJwtSess(sess)
+		if !verif {
+			c.WriteMessage(websocket.TextMessage, []byte("UnAuthorized 2"))
+			c.Close()
 		}
-		fmt.Printf("recv: %s", msg)
-		if err = c.WriteMessage(mt, msg); err != nil {
-			fmt.Println("write:", err)
-			break
+		chatSession := c.Params("id")
+		abc, isChat := db.CheckChat(user, chatSession)
+		Username = abc
+		if isChat {
+			authorized = true
+
+			curr_hub = getCurrHub(chatSession)
+			fmt.Println("Current: ", *curr_hub)
+			(*curr_hub).register <- c
+			count := getTotalocc(c, curr_hub.clients)
+			if count > 1 {
+				Username = Username + strconv.Itoa(count)
+			}
+			c.WriteMessage(websocket.TextMessage, []byte("Welcome "+user))
+
+		} else {
+			c.WriteMessage(websocket.TextMessage, []byte("UnAuthorized 3"))
+			c.Close()
 		}
 	}
+
+	if authorized {
+		defer func(h *Hub) {
+			h.unregister <- c
+			c.Close()
+		}(curr_hub)
+
+		for {
+			mt, msg, err := c.ReadMessage()
+			if err != nil {
+				return
+			}
+			if mt == websocket.TextMessage {
+				curr_hub.current <- c
+				(*curr_hub).broadcast <- append([]byte(Username+": "), msg[:]...)
+
+			} else {
+				fmt.Println("Message type: ", mt)
+			}
+		}
+	}
+}
+
+func getTotalocc(c *websocket.Conn, arr map[*websocket.Conn]bool) int {
+	count := 0
+	for v, _ := range arr {
+		if v == c {
+			count++
+		}
+	}
+	return count
 }

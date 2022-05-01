@@ -15,7 +15,7 @@ func main() {
 	if err != nil {
 		fmt.Println("Error loading .env file")
 	}
-	app := fiber.New()
+	app := fiber.New(*getConfig())
 
 	app.Use(cors.New(cors.Config{
 		AllowCredentials: true,
@@ -27,4 +27,13 @@ func main() {
 	// Chat Routes
 	routes.Chat("/api/v1/chat", app)
 	app.Listen("localhost:" + os.Getenv("PORT"))
+}
+
+func getConfig() *fiber.Config {
+	return &fiber.Config{
+		Prefork:      true,
+		ServerHeader: "Go-Chat-Server",
+		AppName:      "Go-Chat",
+		Immutable:    true,
+	}
 }

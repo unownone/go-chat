@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 
+	"github.com/golang-jwt/jwt/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -40,4 +41,29 @@ func CreateChat(chat *Chat) error {
 	chat_col := GetChatCol()
 	_, err := chat_col.InsertOne(context.TODO(), chat)
 	return err
+}
+
+// Checks whether User has access to Chat
+func CheckChat(user string, chat string) (string, bool) {
+	users := new(User)
+	claims := jwt.RegisteredClaims{Issuer: user}
+	err := GetCurrUser(&claims, users)
+	if err != nil {
+		return "", false
+	}
+	chats := new([]Chat)
+	hexchat, err := primitive.ObjectIDFromHex(chat)
+	if err != nil {
+		return users.Name, false
+	}
+	err = GetUserChats(users.ID, chats)
+	if err != nil {
+		return users.Name, false
+	}
+	for _, c := range *chats {
+		if c.ID == hexchat {
+			return users.Name, true
+		}
+	}
+	return users.Name, false
 }
