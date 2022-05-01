@@ -11,8 +11,8 @@ import (
 )
 
 func main() {
-	if os.Getenv("APP_ENV") == "Development" {
-		err := godotenv.Load()
+	err := godotenv.Load()
+	if os.Getenv("APP_ENV") == "development" {
 		if err != nil {
 			fmt.Println("Error loading .env file")
 		}
@@ -28,7 +28,7 @@ func main() {
 
 	// Chat Routes
 	routes.Chat("/api/v1/chat", app)
-	app.Listen("localhost:" + os.Getenv("PORT"))
+	app.Listen(os.Getenv("HOST") + ":" + os.Getenv("PORT"))
 }
 
 func getConfig() *fiber.Config {
