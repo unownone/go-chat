@@ -21,3 +21,9 @@ func GetCurrUser(claims *jwt.RegisteredClaims, user *User) error {
 	err := users.FindOne(context.TODO(), bson.M{"email": user_email}).Decode(user)
 	return err
 }
+
+func GetUserById(id primitive.ObjectID, user *User) error {
+	users := GetUserCol()
+	err := users.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&user)
+	return err
+}

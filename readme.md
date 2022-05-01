@@ -144,9 +144,28 @@
                 }
             }
         ```
-
-
-### Chats ```/api/v1/chat``` [WS]
+- `/chats` : Update a Chat
+    - Method : `PUT`
+    - Body : 
+        ```
+            {
+                "name": "Chat Name", //[Optional]
+                "users": ["User1", "User2"] // User IDs [Optional]
+            }
+        ```
+    - Response :
+        ```
+            {
+                "error": false,
+                "message": "Chat Updated Successfully",
+                "chat": {
+                    "id": "Chat ID",
+                    "name": "Chat Name", // Updated Name
+                    "users": ["User1", "User2"] // User IDs , Updated Valid USERIDS
+                }
+            }
+        ```
+### Chats ```/api/v1/chat``` [WebSockets]
 - /<sess_id>/<chat_id>
     `<sess_id>` : User's JWT access Token
     `<chat_id>` : Chat ID to join.

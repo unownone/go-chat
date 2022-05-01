@@ -53,3 +53,27 @@ func CreateChat(c *fiber.Ctx, claims *jwt.RegisteredClaims) error {
 		Chats:   []db.Chat{*chat},
 	})
 }
+
+func UpdateChat(c *fiber.Ctx, claims *jwt.RegisteredClaims) error {
+	curr_user := db.User{}
+	err := db.GetCurrUser(claims, &curr_user)
+	if err != nil {
+		return c.Status(404).JSON(response.Error{Message: "User not found"})
+	}
+	chat := new(db.Chat)
+	err = c.BodyParser(&chat)
+	if err != nil {
+		return c.Status(400).JSON(response.Error{Message: "Invalid request body"})
+	}
+	if chat.Users == nil {
+		chat.Users = append(chat.Users, curr_user.ID)
+	}
+	err = db.UpdateChat(chat)
+	if err != nil {
+		return c.Status(400).JSON(response.Error{Message: "Chat not Updated"})
+	}
+	return c.Status(201).JSON(response.ChatResponse{
+		Message: "Updated",
+		Chats:   []db.Chat{*chat},
+	})
+}

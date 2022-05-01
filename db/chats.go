@@ -43,6 +43,47 @@ func CreateChat(chat *Chat) error {
 	return err
 }
 
+func UpdateChat(chat *Chat) error {
+	chat_col := GetChatCol()
+	another := new(Chat)
+	err := chat_col.FindOne(context.TODO(), bson.M{"_id": chat.ID}).Decode(another)
+	if err != nil {
+		return err
+	}
+	getFinalChat(chat, another)
+	_, err = chat_col.ReplaceOne(context.TODO(), bson.M{"_id": chat.ID}, another)
+	return err
+}
+
+func getFinalChat(chat *Chat, another *Chat) {
+	if chat.Name != "" {
+		another.Name = chat.Name
+	}
+	for _, user := range chat.Users {
+		if !contains(another.Users, user) {
+			if userIsValid(user) {
+				another.Users = append(chat.Users, user)
+			}
+		}
+	}
+	return
+}
+
+func userIsValid(user primitive.ObjectID) bool {
+	users := new(User)
+	err := GetUserById(user, users)
+	return err == nil
+}
+
+func contains(s []primitive.ObjectID, e primitive.ObjectID) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
 // Checks whether User has access to Chat
 func CheckChat(user string, chat string) (string, bool) {
 	users := new(User)

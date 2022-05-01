@@ -14,6 +14,9 @@ func Chat(base string, app *fiber.App) {
 	app.Get(base+"/chats", middleware.VerifyJwtWithClaim(chat.GetChats))
 	// Create Chat
 	app.Post(base+"/chats", middleware.VerifyJwtWithClaim(chat.CreateChat))
+	// Update Chat
+	app.Put(base+"/chats", middleware.VerifyJwtWithClaim(chat.UpdateChat))
+
 	go chat.HubRunner()
 	app.Use(base, chat.GetSocketUpgrade)
 	app.Get(base+"/:sess/:id", websocket.New(chat.ChatConnection))
