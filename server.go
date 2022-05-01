@@ -11,10 +11,11 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
-	fmt.Println("Port: ", os.Getenv("PORT"))
-	if err != nil {
-		fmt.Println("Error loading .env file")
+	if os.Getenv("APP_ENV") == "Development" {
+		err := godotenv.Load()
+		if err != nil {
+			fmt.Println("Error loading .env file")
+		}
 	}
 	app := fiber.New(*getConfig())
 
