@@ -77,7 +77,7 @@ func ChatConnection(c *websocket.Conn) {
 
 func getTotalocc(c *websocket.Conn, arr map[*websocket.Conn]bool) int {
 	count := 0
-	for v, _ := range arr {
+	for v := range arr {
 		if v == c {
 			count++
 		}
