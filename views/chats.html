@@ -80,7 +80,7 @@
                         }),
                         success: function(data){
                             localStorage.setItem("access_token", data.access_token);
-                            window.location.href = "/chat";
+                            window.location.reload();
                         },
                         error: function(data) {
                             window.location.href = "/login";
@@ -128,7 +128,10 @@
             console.log("no socket to close");
         }
         $("#chat_heading").html(name);
-        socket = new WebSocket("ws://"+"{{.HOST}}"+":"+"{{.PORT}}"+"/api/v1/chat/"+localStorage.getItem("access_token")+"/"+id);
+        var hst = "{{.HOST}}";
+        var prt = "{{.PORT}}";
+        console.log(hst)
+        socket = new WebSocket(`ws://${hst}:${prt}/api/v1/chat/${localStorage.getItem("access_token")}/id`);
         console.log("Socket Opened!");
         curr = id;
         socket.onopen = function(e) {
