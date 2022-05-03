@@ -130,6 +130,8 @@
         $("#chat_heading").html(name);
         var hst = "{{.HOST}}";
         var prt = "{{.PORT}}";
+        var proto = {{if .Env}} "ws" {{else}} "wss" {{end}};
+
         console.log(hst)
         socket = new WebSocket(`ws://${hst}:${prt}/api/v1/chat/${localStorage.getItem("access_token")}/id`);
         console.log("Socket Opened!");
