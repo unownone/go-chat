@@ -128,7 +128,7 @@
             console.log("no socket to close");
         }
         $("#chat_heading").html(name);
-        socket = new WebSocket("ws://{{.HOST}}:{{.PORT}}/api/v1/chat/"+localStorage.getItem("access_token")+"/"+id);
+        socket = new WebSocket("ws://"+{{.HOST}}+":"+{{.PORT}}+"/api/v1/chat/"+localStorage.getItem("access_token")+"/"+id);
         console.log("Socket Opened!");
         curr = id;
         socket.onopen = function(e) {
