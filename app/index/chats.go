@@ -1,12 +1,15 @@
 package index
 
 import (
+	"os"
+
 	"github.com/gofiber/fiber/v2"
 )
 
 func Chats(c *fiber.Ctx) error {
 	return c.Render("chats",
 		fiber.Map{
-			"Awesome": "Go-Chat",
+			"HOST": os.Getenv("HOST"),
+			"PORT": os.Getenv("PPort"),
 		})
 }
