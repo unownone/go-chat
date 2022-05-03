@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
@@ -113,6 +114,7 @@ func Login(c *fiber.Ctx) error {
 				Error:   true,
 			})
 		}
+		fmt.Println("token: ", token)
 		return c.JSON(
 			response.Success{
 				Access:  token,

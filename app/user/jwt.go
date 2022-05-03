@@ -16,17 +16,27 @@ var (
 	SecretKey = []byte(os.Getenv("JWT_KEY"))
 )
 
+func createClaims(Iss string, sub string, exp *jwt.NumericDate) jwt.RegisteredClaims {
+	return jwt.RegisteredClaims{
+		Issuer:    Iss,
+		Subject:   sub,
+		ExpiresAt: exp,
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
+	}
+}
+
 func GetJwtToken(user string) (string, string, int) {
 	a := 1
-	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
-		Issuer:    user,
-		ExpiresAt: access,
-	})
-	claims2 := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
-		Issuer:    user,
-		Subject:   "Refresh",
-		ExpiresAt: refresh,
-	})
+	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, createClaims(
+		user,
+		"Access",
+		access,
+	))
+	claims2 := jwt.NewWithClaims(jwt.SigningMethodHS256, createClaims(
+		user,
+		"Refresh",
+		refresh,
+	))
 	token, err := claims.SignedString([]byte(SecretKey))
 	reftoken, err1 := claims2.SignedString([]byte(SecretKey))
 	if err != nil && err1 != nil {

@@ -1,0 +1,156 @@
+{{template "partials/header" .}}
+<style>
+    .messages {
+        border:2.5px solid grey;
+        background-color:#006400;
+        color: white;
+        border-radius:5px;
+    }
+</style>
+<div class="row">
+    <div class="col" id="curr_chat">
+        <h3 id="chat_heading">No chat Selected</h3>
+        <div class="container" id="chat_space" style="overflow: scroll; height:240px;">
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-10">
+                <textarea id="chat_input" rows="3" cols="66" placeholder="Enter Message"></textarea>
+            </div>
+            <div class="col">
+                <button id="send_chat" class="btn btn-primary">Send</button>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <table class="chat-list" id="chats" data-searching="false">
+            <thead>
+                <tr>
+                    <th>id</th>
+                    <th>name</th>
+                    <th>Users</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+
+<script type="text/javascript" src="static/datatables/datatables.min.js"></script>
+<script>
+    var curr;
+    var socket;
+
+    $(document).ready(function() {
+        $("#chat_input").keydown(function(event) {
+            if (event.keyCode == 13) {
+                event.preventDefault();
+                $("send_chat").click();
+            }
+        });
+        $("#send_chat").click(function() {
+            var text = $("#chat_input").val();
+            if(text!="") {
+                socket.send(text);
+                AddMessage(text, true);
+                $("#chat_input").val("");
+            } else {
+                alert("Please enter a message");
+            }
+        });
+        $.ajax({
+            url: "/api/v1/chat/chats",
+            type: "GET",
+            headers:{
+                "Authorization": "Bearer "+localStorage.getItem("access_token")
+            },
+            success: function(data){
+                populateTable(data.chats)
+            },
+            error: function(data) {
+                var refresh = localStorage.getItem("refresh_token")
+                if(refresh==undefined){
+                    window.location.href = "/login";
+                } else {
+                    $.ajax({
+                        url: "/api/v1/auth/refresh",
+                        type: "POST",
+                        data: JSON.stringify({
+                            "refresh_token": refresh
+                        }),
+                        success: function(data){
+                            localStorage.setItem("access_token", data.access_token);
+                            window.location.href = "/chat";
+                        },
+                        error: function(data) {
+                            window.location.href = "/login";
+                        }
+                    });
+                }
+            }
+
+        })
+    });
+    function populateTable(data) {
+        $("#chats").DataTable().clear();
+        var row = 1;
+        $.each(data, function (index, value) {
+            $('#chats').dataTable().fnAddData( [
+                row,
+                function(){ return `<button class="btn btn-default" onclick="openChat('${value.id}','${escape(value.name)}');">${value.name}</button>`},
+                value.users.length,
+              ]);
+
+           row++;
+        });
+        $('#example').DataTable({
+            "columnDefs": [
+                {
+                    "targets": [ 1 ],
+                    "visible": false,
+                    "searchable": false
+                },
+            ]
+        });
+    }
+
+    function escape(st) {
+        return st.replace('"', '').replace("'", '');
+    }
+        
+    function openChat(id,name) {
+        try{
+            if(curr != id){
+                socket.close();
+                console.log("Socket Closed");
+            }
+        } catch {
+            console.log("no socket to close");
+        }
+        $("#chat_heading").html(name);
+        socket = new WebSocket("ws://127.0.0.1:8080/api/v1/chat/"+localStorage.getItem("access_token")+"/"+id);
+        console.log("Socket Opened");
+        curr = id;
+        socket.onopen = function(e) {
+            $("#chat_space").html("");
+            AddMessage(`Joined Chat ${name}`);
+        };
+        socket.onmessage = function(event) {
+            AddMessage(event.data, false);
+        };
+    }
+
+    function AddMessage(message,send) {
+        if(send===undefined){
+            $("#chat_space").append(`<p class="messages" style="text-align:center;">${message}</p>`);
+        }else {
+            if(send){
+                $("#chat_space").append(`<p class="messages" style="text-align:right;">${message}</p>`);
+            } else {
+                $("#chat_space").append(`<p class="messages" style="text-align:left;background-color:#8b0000;">${message}</p>`);
+            }
+        }
+    }
+</script>
+
+{{template "partials/footer" .}}

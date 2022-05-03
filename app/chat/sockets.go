@@ -2,7 +2,6 @@ package chat
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
@@ -39,13 +38,11 @@ func ChatConnection(c *websocket.Conn) {
 			authorized = true
 
 			curr_hub = getCurrHub(chatSession)
-			fmt.Println("Current: ", *curr_hub)
+			// fmt.Println("Current", curr_hub)
 			(*curr_hub).register <- c
-			count := getTotalocc(c, curr_hub.clients)
-			if count > 1 {
-				Username = Username + strconv.Itoa(count)
-			}
+
 			c.WriteMessage(websocket.TextMessage, []byte("Welcome "+user))
+			// fmt.Println("Welcome " + user)
 
 		} else {
 			c.WriteMessage(websocket.TextMessage, []byte("UnAuthorized 3"))
@@ -73,14 +70,4 @@ func ChatConnection(c *websocket.Conn) {
 			}
 		}
 	}
-}
-
-func getTotalocc(c *websocket.Conn, arr map[*websocket.Conn]bool) int {
-	count := 0
-	for v := range arr {
-		if v == c {
-			count++
-		}
-	}
-	return count
 }

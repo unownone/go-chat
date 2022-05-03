@@ -1,0 +1,58 @@
+{{template "partials/header" .}}
+
+<div class="row">
+    <div class="col">
+    <h2> Welcome to go Chatify </h2>
+    </div>
+    <div class="col">
+        <form id="signupForm" class="form-control">
+            <div class="mb-3">
+              <label for="exampleInputEmail1" class="form-label">Email address</label>
+              <input type="email" class="form-control" name="email" id="exampleInputEmail1" aria-describedby="emailHelp">
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" name="password" class="form-control" id="password">
+            </div>
+            <div class="message" id="messages">
+                <p id="message2"></p>
+            </div>
+            <button class="btn btn-primary" id="submit" type="submit">
+                Sign up!
+            </button>
+          </form>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $('#signupForm').submit(function(e){
+            e.preventDefault();
+            var final = {
+                "password": $('#password').val(),
+                "email": $('#exampleInputEmail1').val()
+            }
+            $("#submit").attr("disabled", true);
+            $("#submit").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Loging In!');
+            $.ajax({
+                url: "/api/v1/auth/login",
+                type: "POST",
+                data: JSON.stringify(final),
+                contentType: "application/json",
+                success: function(data){
+                    if(data.error){
+                        $('#message2').html(data.message).addClass('text-danger').removeClass('text-success');
+                    } else {
+                        console.log(data.access_token);
+                        localStorage.setItem("access_token",data.access_token);
+                        localStorage.setItem("refresh_token",data.refresh_token);
+                        $('#message2').html(data.message).addClass('text-success').removeClass('text-danger');
+                    }
+                    $("#submit").attr("disabled", false).html('Try Again');
+                },
+            });
+        })
+    });
+</script>
+
+{{template "partials/footer" .}}

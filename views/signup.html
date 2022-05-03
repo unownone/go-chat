@@ -1,0 +1,76 @@
+{{template "partials/header" .}}
+
+<div class="row">
+    <div class="col">
+    <h2> Welcome to go Chatify </h2>
+    </div>
+    <div class="col">
+        <form id="signupForm" class="form-control">
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" name="name" class="form-control" id="name">
+            </div>
+            <div class="mb-3">
+              <label for="exampleInputEmail1" class="form-label">Email address</label>
+              <input type="email" class="form-control" name="email" id="exampleInputEmail1" aria-describedby="emailHelp">
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" name="password" class="form-control" id="password">
+            </div>
+            <div class="message" id="messages">
+                <p id="message1"></p>
+            </div>
+            <div class="mb-3">
+              <label for="confpassword" class="form-label">Confirm Password</label>
+              <input type="password" class="form-control" id="confpassword">
+            </div>
+            <div class="message" id="messages">
+                <p id="message2"></p>
+            </div>
+            <button class="btn btn-primary" id="submit" type="submit">
+                Sign up!
+            </button>
+          </form>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $('#confpassword').on('keyup', function () {
+            if (!($('#password').val() == $('#confpassword').val())) {
+                $('#message2').html('Passwords Do not Match!').addClass('text-danger').removeClass('text-success');
+            } else {
+                $('#message2').html('Passwords Match!').addClass('text-success').removeClass('text-danger');
+            }
+        });
+        $('#signupForm').submit(function(e){
+            e.preventDefault();
+            var final = {
+                "name": $('#name').val(),
+                "password": $('#password').val(),
+                "email": $('#exampleInputEmail1').val()
+            }
+            $("#submit").attr("disabled", true);
+            $("#submit").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Signing Up!');
+            $.ajax({
+                url: "/api/v1/auth/register",
+                type: "POST",
+                data: JSON.stringify(final),
+                contentType: "application/json",
+                success: function(data){
+                    if(data.error){
+                        $('#message2').html(data.message).addClass('text-danger').removeClass('text-success');
+                    } else {
+                        localStorage.setItem("access_token",data.access_token)
+                        localStorage.setItem("refresh_token",data.refresh_token)
+                        $('#message2').html(data.message).addClass('text-success').removeClass('text-danger');
+                    }
+                    $("#submit").attr("disabled", false).html('Try Again');
+                },
+            });
+        })
+    });
+</script>
+
+{{template "partials/footer" .}}

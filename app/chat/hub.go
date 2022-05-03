@@ -1,7 +1,6 @@
 package chat
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gofiber/websocket/v2"
@@ -93,7 +92,7 @@ func getCurrHub(chat string) *Hub {
 	}
 	// fmt.Println("\nhub: ", <-hubs[chat])
 	final := <-hubs[chat]
-	fmt.Println("Current: ", final)
+	// fmt.Println("Current", final)
 	hubs[chat] <- final
 	return &final
 }
