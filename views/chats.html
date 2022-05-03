@@ -133,7 +133,7 @@
         var proto = {{if .Env}} "ws" {{else}} "wss" {{end}};
 
         console.log(hst)
-        socket = new WebSocket(`ws://${hst}:${prt}/api/v1/chat/${localStorage.getItem("access_token")}/id`);
+        socket = new WebSocket(`${proto}://${hst}:${prt}/api/v1/chat/${localStorage.getItem("access_token")}/id`);
         console.log("Socket Opened!");
         curr = id;
         socket.onopen = function(e) {
