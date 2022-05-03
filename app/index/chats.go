@@ -9,7 +9,7 @@ import (
 func Chats(c *fiber.Ctx) error {
 	return c.Render("chats",
 		fiber.Map{
-			"HOST": os.Getenv("HOST"),
+			"HOST": os.Getenv("HHost"),
 			"PORT": os.Getenv("PPort"),
 		})
 }
