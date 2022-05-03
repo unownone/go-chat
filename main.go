@@ -55,7 +55,6 @@ func getConfig() *fiber.Config {
 
 func getHandler() *html.Engine {
 	handler := html.New("./views", ".html")
-	handler.Reload(true)
 	return handler
 }
 
