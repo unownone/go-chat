@@ -179,10 +179,10 @@ Creates a Websocket Connection.
 
 ### Chats ```/api/v2/chat``` [WebSockets] [NEW]
 - /<sess_id>
-    `<sess_id>` : User's JWT access Token
-    User is authenticated
+    `<sess_id>` : User's JWT access Token  
+    User is authenticated  
     To connect to chatroom send TEXTMessage: "!startChat <chat_id>"
-        
+
 # How to Run:
 
 - Clone the Repo Using 
