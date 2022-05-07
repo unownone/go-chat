@@ -79,7 +79,7 @@ func (h *Hub) Run() {
 			delete(h.clients, connection)
 			if len(h.clients) == 0 {
 				println("initiating to stop hub")
-				h.running <- false
+				hubs.stop <- h
 			}
 
 		case curr := <-h.running:
