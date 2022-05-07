@@ -115,6 +115,7 @@ func getCurrHub(chat string) *Hub {
 	} else {
 		hub := newHub(chat)
 		hubs.hubs[chat] = hub
+		fmt.Println(hubs.hubs)
 		hubs.run <- hub
 		return hub
 	}
