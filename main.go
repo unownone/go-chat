@@ -19,9 +19,8 @@ func main() {
 		}
 	}
 	app := fiber.New(*getConfig())
-
 	api := app.Group("/api", routes.GetNextMiddleWare)
-	// cors
+	// cors & logging
 	app.Use(cors.New(*getCorsConfig()))
 	// static
 	app.Static("/static", "./static")

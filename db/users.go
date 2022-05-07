@@ -12,7 +12,7 @@ type User struct {
 	ID       primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Name     string             `bson:"name,omitempty" json:"name"`
 	Email    string             `bson:"email,omitempty" json:"email"`
-	Password string             `bson:"password,omitempty" json:"-"`
+	Password string             `bson:"password,omitempty" json:"password,omitempty"`
 }
 
 func GetCurrUser(claims *jwt.RegisteredClaims, user *User) error {
@@ -25,5 +25,6 @@ func GetCurrUser(claims *jwt.RegisteredClaims, user *User) error {
 func GetUserById(id primitive.ObjectID, user *User) error {
 	users := GetUserCol()
 	err := users.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&user)
+	user.Password = ""
 	return err
 }

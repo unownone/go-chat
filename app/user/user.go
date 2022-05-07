@@ -21,7 +21,6 @@ func CurrentUser(c *fiber.Ctx, claims *jwt.RegisteredClaims) error {
 func GetUserByEmail(c *fiber.Ctx) error {
 	users := db.GetUserCol()
 	email := c.Query("email")
-	println(email)
 	result := users.FindOne(context.TODO(), bson.M{"email": email})
 	if result.Err() != nil {
 		return c.JSON(
@@ -41,6 +40,7 @@ func GetUserByEmail(c *fiber.Ctx) error {
 				},
 			)
 		} else {
+			user.Password = ""
 			return c.JSON(
 				user,
 			)

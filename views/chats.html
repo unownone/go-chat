@@ -5,6 +5,7 @@
         background-color:#006400;
         color: white;
         border-radius:5px;
+        width: 100%;
     }
 </style>
 <div class="row">
@@ -66,6 +67,7 @@
             },
             success: function(data){
                 populateTable(data.chats)
+                openSocket();
             },
             error: function(data) {
                 var refresh = localStorage.getItem("refresh_token")
@@ -117,28 +119,22 @@
     function escape(st) {
         return st.replace('"', '').replace("'", '');
     }
-        
-    function openChat(id,name) {
-        try{
-            if(curr != id){
-                socket.close();
-                console.log("Socket Closed");
-            }
-        } catch {
-            console.log("no socket to close");
-        }
+    
+    function openChat(id, name) {
+        curr = id;
         $("#chat_heading").html(name);
+        socket.send("!startChat "+id);
+    }
+
+    function openSocket() {
         var hst = "{{.HOST}}";
         var prt = "{{.PORT}}";
         var proto = {{if .Env}} "ws" {{else}} "wss" {{end}};
 
-        console.log(hst)
-        socket = new WebSocket(`${proto}://${hst}:${prt}/api/v1/chat/${localStorage.getItem("access_token")}/${id}`);
-        console.log("Socket Opened!");
-        curr = id;
+        socket = new WebSocket(`${proto}://${hst}:${prt}/api/v2/chat/${localStorage.getItem("access_token")}`);
         socket.onopen = function(e) {
             $("#chat_space").html("");
-            AddMessage(`Joined Chat ${name}`);
+            AddMessage(`Connected to WebSite`);
         };
         socket.onmessage = function(event) {
             AddMessage(event.data, false);
@@ -146,6 +142,8 @@
     }
 
     function AddMessage(message,send) {
+        var objDiv = document.getElementById("chat_space");
+        objDiv.scrollTop = objDiv.scrollHeight + 100;
         if(send===undefined){
             $("#chat_space").append(`<p class="messages" style="text-align:center;">${message}</p>`);
         }else {
