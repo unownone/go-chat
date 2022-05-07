@@ -1,16 +1,19 @@
 package chat
 
 import (
-	"time"
-
 	"github.com/gofiber/websocket/v2"
 )
 
 var (
-	hubs = make(map[string](chan Hub))
 	curr *websocket.Conn
+	hubs *Hubs = getHubRun()
 )
 
+type Hubs struct {
+	hubs map[string]*Hub
+	run  chan *Hub
+	stop chan *Hub
+}
 type Hub struct {
 	current chan *websocket.Conn
 	// Registered clients.
@@ -26,20 +29,27 @@ type Hub struct {
 	unregister chan *websocket.Conn
 
 	// Check if hub is running
-	running bool `default:"false"`
+	running    chan bool
+	is_running bool `default:"false"`
+}
+
+func getHubRun() *Hubs {
+	return &Hubs{
+		hubs: make(map[string]*Hub),
+		run:  make(chan *Hub),
+		stop: make(chan *Hub),
+	}
 }
 
 func HubRunner() {
 	for {
-		for _, hub := range hubs {
-			hub_data := <-hub
-			if hub_data.running {
-				hub_data.running = false
-				go hub_data.Run()
-			}
-			hub <- hub_data
+		select {
+		case hub := <-hubs.run:
+			go hub.Run()
+
+		case hub := <-hubs.stop:
+			hub.running <- false
 		}
-		time.Sleep(time.Second * 1)
 	}
 }
 
@@ -63,7 +73,12 @@ func (h *Hub) Run() {
 		case connection := <-h.unregister:
 			delete(h.clients, connection)
 			if len(h.clients) == 0 {
-				h.running = false
+				h.running <- false
+			}
+
+		case curr := <-h.running:
+			if !curr {
+				return
 			}
 
 		case connection := <-h.current:
@@ -80,19 +95,17 @@ func newHub() *Hub {
 		register:   make(chan *websocket.Conn),
 		unregister: make(chan *websocket.Conn),
 		clients:    make(map[*websocket.Conn]string),
-		running:    true,
+		running:    make(chan bool),
 	}
 }
 
 func getCurrHub(chat string) *Hub {
-	var final Hub
-	if hubs[chat] == nil {
-		hubs[chat] = make(chan Hub)
-		final = *newHub()
-		hubs[chat] <- final
+	if hub, ok := hubs.hubs[chat]; ok {
+		return hub
 	} else {
-		final = <-hubs[chat]
-		hubs[chat] <- final
+		hub := newHub()
+		hubs.hubs[chat] = hub
+		hubs.run <- hub
+		return hub
 	}
-	return &final
 }

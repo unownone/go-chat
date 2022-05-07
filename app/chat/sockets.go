@@ -106,7 +106,7 @@ func AuthWebSocket(c *websocket.Conn) {
 
 func webSocketHandler(c *websocket.Conn, user *db.User) {
 	//Close if disconnected
-	h := new(Hub)
+	h := Hub{}
 	for {
 		mt, msg, err := c.ReadMessage()
 		if err != nil {
@@ -116,9 +116,9 @@ func webSocketHandler(c *websocket.Conn, user *db.User) {
 		}
 		switch {
 		case mt == websocket.TextMessage && strings.HasPrefix(string(msg), "!startChat"):
-			startChat(h, c, user.Email, string(msg))
+			startChat(&h, c, user.Email, string(msg))
 		case mt == websocket.TextMessage:
-			if h.running {
+			if h.is_running {
 				h.current <- c
 				h.broadcast <- append([]byte(user.Name+": "), msg[:]...)
 			} else {
