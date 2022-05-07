@@ -1,12 +1,15 @@
 package chat
 
 import (
+	"sync"
+
 	"github.com/gofiber/websocket/v2"
 )
 
 var (
-	curr *websocket.Conn
-	hubs *Hubs = getHubRun()
+	curr    *websocket.Conn
+	hubs    *Hubs
+	hubOnce sync.Once
 )
 
 type Hubs struct {
@@ -36,11 +39,14 @@ type Hub struct {
 }
 
 func getHubRun() *Hubs {
-	return &Hubs{
-		hubs: make(map[string]*Hub),
-		run:  make(chan *Hub),
-		stop: make(chan *Hub),
-	}
+	hubOnce.Do(func() {
+		hubs = &Hubs{
+			hubs: make(map[string]*Hub),
+			run:  make(chan *Hub),
+			stop: make(chan *Hub),
+		}
+	})
+	return hubs
 }
 
 func HubRunner() {
@@ -107,12 +113,12 @@ func newHub(chatName string) *Hub {
 }
 
 func getCurrHub(chat string) *Hub {
-	if hub, ok := hubs.hubs[chat]; ok {
+	if hub, ok := getHubRun().hubs[chat]; ok {
 		return hub
 	} else {
 		hub := newHub(chat)
-		hubs.hubs[chat] = hub
-		hubs.run <- hub
+		getHubRun().hubs[chat] = hub
+		getHubRun().run <- hub
 		return hub
 	}
 }
