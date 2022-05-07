@@ -28,3 +28,10 @@ func GetUserById(id primitive.ObjectID, user *User) error {
 	user.Password = ""
 	return err
 }
+
+func GetUserByEmail(email string, user *User) error {
+	users := GetUserCol()
+	err := users.FindOne(context.TODO(), bson.M{"email": email}).Decode(&user)
+	user.Password = ""
+	return err
+}

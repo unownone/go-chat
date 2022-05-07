@@ -14,7 +14,7 @@ var (
 type Hub struct {
 	current chan *websocket.Conn
 	// Registered clients.
-	clients map[*websocket.Conn]bool
+	clients map[*websocket.Conn]string
 
 	// Inbound messages from the clients.
 	broadcast chan []byte
@@ -47,7 +47,7 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case connection := <-h.register:
-			h.clients[connection] = true
+			h.clients[connection] = connection.Params("uid")
 
 		case message := <-h.broadcast:
 			for connection := range h.clients {
@@ -79,7 +79,7 @@ func newHub() *Hub {
 		broadcast:  make(chan []byte),
 		register:   make(chan *websocket.Conn),
 		unregister: make(chan *websocket.Conn),
-		clients:    make(map[*websocket.Conn]bool),
+		clients:    make(map[*websocket.Conn]string),
 		running:    true,
 	}
 }

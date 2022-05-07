@@ -93,16 +93,18 @@ func AuthWebSocket(c *websocket.Conn) {
 		c.Close()
 		return
 	}
-	c.WriteMessage(websocket.TextMessage, []byte("Welcome "+user))
+	user_obj := db.User{}
+	db.GetUserByEmail(user, &user_obj)
+	c.WriteMessage(websocket.TextMessage, []byte("Welcome "+user_obj.Name))
 	// Close if not Authorised
 	if !authorized {
 		return
 	}
 
-	webSocketHandler(c, user)
+	webSocketHandler(c, &user_obj)
 }
 
-func webSocketHandler(c *websocket.Conn, user string) {
+func webSocketHandler(c *websocket.Conn, user *db.User) {
 	//Close if disconnected
 	h := new(Hub)
 	for {
@@ -114,11 +116,11 @@ func webSocketHandler(c *websocket.Conn, user string) {
 		}
 		switch {
 		case mt == websocket.TextMessage && strings.HasPrefix(string(msg), "!startChat"):
-			startChat(h, c, user, string(msg))
+			startChat(h, c, user.Email, string(msg))
 		case mt == websocket.TextMessage:
 			if h.running {
 				h.current <- c
-				h.broadcast <- append([]byte(user+": "), msg[:]...)
+				h.broadcast <- append([]byte(user.Name+": "), msg[:]...)
 			} else {
 				c.WriteMessage(websocket.TextMessage, []byte("please join a chat first"))
 			}

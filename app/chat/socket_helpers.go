@@ -21,7 +21,7 @@ func startChat(h *Hub, c *websocket.Conn, user string, msg string) {
 			h.unregister <- c
 		}
 		*h = *getCurrHub(chatName)
-		if !h.clients[c] {
+		if _, ok := h.clients[c]; !ok {
 			h.register <- c
 			h.running = true
 			c.WriteMessage(websocket.TextMessage, []byte("Welcome to "+chat))
