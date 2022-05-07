@@ -15,6 +15,8 @@ type Hubs struct {
 	stop chan *Hub
 }
 type Hub struct {
+	chat string
+
 	current chan *websocket.Conn
 	// Registered clients.
 	clients map[*websocket.Conn]string
@@ -51,6 +53,7 @@ func HubRunner() {
 		case hub := <-hubs.stop:
 			println("Stopping hub", hub)
 			hub.running <- false
+			delete(hubs.hubs, hub.chat)
 		}
 	}
 }
@@ -75,6 +78,7 @@ func (h *Hub) Run() {
 		case connection := <-h.unregister:
 			delete(h.clients, connection)
 			if len(h.clients) == 0 {
+				println("initiating to stop hub")
 				h.running <- false
 			}
 
@@ -90,8 +94,9 @@ func (h *Hub) Run() {
 	}
 }
 
-func newHub() *Hub {
+func newHub(chatName string) *Hub {
 	return &Hub{
+		chat:       chatName,
 		current:    make(chan *websocket.Conn),
 		broadcast:  make(chan []byte),
 		register:   make(chan *websocket.Conn),
@@ -105,7 +110,7 @@ func getCurrHub(chat string) *Hub {
 	if hub, ok := hubs.hubs[chat]; ok {
 		return hub
 	} else {
-		hub := newHub()
+		hub := newHub(chat)
 		hubs.hubs[chat] = hub
 		hubs.run <- hub
 		return hub
