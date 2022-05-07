@@ -18,6 +18,8 @@
 - Email Verification
 - Client Website and Application
 
+## Last Update:
+- Added New Chat API (v2) with a different Auth Method
 
 # API Routes:
 
@@ -83,9 +85,17 @@
                 "user":"User Email ID"
             }
         ```
-
-
-
+- `/user` : Get a user by their email
+    - Method : `GET`
+    - Query : `?email=<user email>`
+    - Response :
+        ```
+            {
+                "id": "User ID",
+                "email":"User Email ID",
+                "name":"User Name",
+            }
+        ```
 
 
 
@@ -167,7 +177,12 @@
 
 Creates a Websocket Connection.
 
-    
+### Chats ```/api/v2/chat``` [WebSockets] [NEW]
+- /<sess_id>
+    `<sess_id>` : User's JWT access Token
+    User is authenticated
+    To connect to chatroom send TEXTMessage: "!startChat <chat_id>"
+        
 # How to Run:
 
 - Clone the Repo Using 
