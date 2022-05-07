@@ -3,24 +3,41 @@ package db
 import (
 	"context"
 	"os"
-	"time"
+	"sync"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func GetDatabase() *mongo.Database {
-	serverAPIOptions := options.ServerAPI(options.ServerAPIVersion1)
-	clientOptions := options.Client().ApplyURI(os.Getenv("MONGO_URI")).SetServerAPIOptions(serverAPIOptions)
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	client, err := mongo.Connect(ctx, clientOptions)
+var (
+	mongoOnce sync.Once
+	db_name   string = os.Getenv("MONGO_DB")
+	connUri   string = os.Getenv("MONGO_URI")
+)
 
+func GetClient() (*mongo.Client, error) {
+	var err error
+	var client *mongo.Client
+	// Using Do once to evalutate the function only once!
+	mongoOnce.Do(func() {
+		clientOptions := options.Client().ApplyURI(connUri)
+
+		client, err = mongo.Connect(context.TODO(), clientOptions)
+
+		err2 := client.Ping(context.TODO(), nil)
+		if err2 != nil {
+			err = err2
+		}
+	})
+	return client, err
+}
+
+func GetDatabase() *mongo.Database {
+	client, err := GetClient()
 	if err != nil {
 		panic(err)
 	}
-
-	db := client.Database("chat_app")
+	db := client.Database(db_name)
 	return db
 }
 

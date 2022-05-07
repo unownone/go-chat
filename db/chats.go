@@ -9,9 +9,10 @@ import (
 )
 
 type Chat struct {
-	ID    primitive.ObjectID   `bson:"_id" json:"id,"`
-	Name  string               `bson:"name,omitempty" json:"name"`
-	Users []primitive.ObjectID `bson:"users,omitempty" json:"users"`
+	ID     primitive.ObjectID   `bson:"_id" json:"id,"`
+	Name   string               `bson:"name,omitempty" json:"name"`
+	Users  []primitive.ObjectID `bson:"users,omitempty" json:"users"`
+	Public bool                 `bson:"public,omitempty" json:"public" default:"false"`
 }
 
 type Message struct {
@@ -55,6 +56,9 @@ func UpdateChat(chat *Chat) error {
 	return err
 }
 
+// Helper function used to get a updated chat , removing users that are already there and adding new valid users
+//
+// It reads data from chat and returns a updated another chat that would be used to update chat function
 func getFinalChat(chat *Chat, another *Chat) {
 	if chat.Name != "" {
 		another.Name = chat.Name
@@ -66,7 +70,6 @@ func getFinalChat(chat *Chat, another *Chat) {
 			}
 		}
 	}
-	return
 }
 
 func userIsValid(user primitive.ObjectID) bool {
