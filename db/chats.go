@@ -106,7 +106,7 @@ func CheckChat(user string, chat string) (string, bool) {
 	}
 	for _, c := range *chats {
 		if c.ID == hexchat {
-			return users.Name, true
+			return c.Name, true
 		}
 	}
 	return users.Name, false

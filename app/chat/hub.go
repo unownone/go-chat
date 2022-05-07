@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	hubs    = make(map[string](chan Hub))
-	current *websocket.Conn
+	hubs = make(map[string](chan Hub))
+	curr *websocket.Conn
 )
 
 type Hub struct {
@@ -51,10 +51,10 @@ func (h *Hub) Run() {
 
 		case message := <-h.broadcast:
 			for connection := range h.clients {
-				if current != connection {
+				if curr != connection {
 					if err := connection.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
 						h.unregister <- connection
-						connection.WriteMessage(websocket.CloseMessage, []byte{})
+						connection.WriteMessage(websocket.CloseMessage, []byte("Error Occured!"))
 						connection.Close()
 					}
 				}
@@ -66,10 +66,10 @@ func (h *Hub) Run() {
 				h.running = false
 			}
 
-		case Client := <-h.current:
-			current = Client
-		}
+		case connection := <-h.current:
+			curr = connection
 
+		}
 	}
 }
 
@@ -85,14 +85,14 @@ func newHub() *Hub {
 }
 
 func getCurrHub(chat string) *Hub {
+	var final Hub
 	if hubs[chat] == nil {
 		hubs[chat] = make(chan Hub)
-
-		hubs[chat] <- *newHub()
+		final = *newHub()
+		hubs[chat] <- final
+	} else {
+		final = <-hubs[chat]
+		hubs[chat] <- final
 	}
-	// fmt.Println("\nhub: ", <-hubs[chat])
-	final := <-hubs[chat]
-	// fmt.Println("Current", final)
-	hubs[chat] <- final
 	return &final
 }

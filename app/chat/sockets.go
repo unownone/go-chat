@@ -2,6 +2,7 @@ package chat
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
@@ -17,6 +18,9 @@ func GetSocketUpgrade(c *fiber.Ctx) error {
 	return fiber.ErrUpgradeRequired
 }
 
+// Will be phased out in a future release
+//
+// Please use chat v2 for better websocket chats.
 func ChatConnection(c *websocket.Conn) {
 	curr_hub := new(Hub)
 	Username := ""
@@ -67,6 +71,56 @@ func ChatConnection(c *websocket.Conn) {
 
 			} else {
 				fmt.Println("Message type: ", mt)
+			}
+		}
+	}
+}
+
+// Authorizing Websockets , detaching from the chat selection
+// Makign it more efficient
+func AuthWebSocket(c *websocket.Conn) {
+	var authorized = false
+	var user string = ""
+	sess := c.Params("sess")
+	if sess == "" {
+		c.WriteMessage(websocket.TextMessage, []byte("Unauthorized"))
+		c.Close()
+		return
+	}
+	user, authorized = auth.VerifyJwtSess(sess)
+	if !authorized {
+		c.WriteMessage(websocket.TextMessage, []byte("Unauthorized"))
+		c.Close()
+		return
+	}
+	c.WriteMessage(websocket.TextMessage, []byte("Welcome "+user))
+	// Close if not Authorised
+	if !authorized {
+		return
+	}
+
+	webSocketHandler(c, user)
+}
+
+func webSocketHandler(c *websocket.Conn, user string) {
+	//Close if disconnected
+	h := new(Hub)
+	for {
+		mt, msg, err := c.ReadMessage()
+		if err != nil {
+			h.unregister <- c
+			c.Close()
+			return
+		}
+		switch {
+		case mt == websocket.TextMessage && strings.HasPrefix(string(msg), "!startChat"):
+			startChat(h, c, user, string(msg))
+		case mt == websocket.TextMessage:
+			if h.running {
+				h.current <- c
+				h.broadcast <- append([]byte(user+": "), msg[:]...)
+			} else {
+				c.WriteMessage(websocket.TextMessage, []byte("please join a chat first"))
 			}
 		}
 	}

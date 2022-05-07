@@ -10,14 +10,16 @@ import (
 )
 
 var (
-	mongoOnce sync.Once
-	db_name   string = os.Getenv("MONGO_DB")
-	connUri   string = os.Getenv("MONGO_URI")
+	mongoOnce  sync.Once
+	mongoTwice sync.Once
+	db_name    string = os.Getenv("MONGO_DB")
+	connUri    string = os.Getenv("MONGO_URI")
+	db         *mongo.Database
+	client     *mongo.Client
 )
 
-func GetClient() (*mongo.Client, error) {
+func getClient() (*mongo.Client, error) {
 	var err error
-	var client *mongo.Client
 	// Using Do once to evalutate the function only once!
 	mongoOnce.Do(func() {
 		clientOptions := options.Client().ApplyURI(connUri)
@@ -33,11 +35,13 @@ func GetClient() (*mongo.Client, error) {
 }
 
 func GetDatabase() *mongo.Database {
-	client, err := GetClient()
-	if err != nil {
-		panic(err)
-	}
-	db := client.Database(db_name)
+	mongoTwice.Do(func() {
+		client, err := getClient()
+		if err != nil {
+			panic(err)
+		}
+		db = client.Database(db_name)
+	})
 	return db
 }
 

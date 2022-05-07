@@ -7,17 +7,25 @@ import (
 	"github.com/unownone/go-chat/middleware"
 )
 
-// Base Route = /api/v1/chat
-func Chat(base string, app *fiber.App) {
+// Base Route = /api/:ver/chat
+func Chat(base string, app fiber.Router) {
+	// Get the hub Running
+	go chat.HubRunner()
+
+	// Versions
+	v1 := app.Group("/v1", GetNextMiddleWare)
+	v2 := app.Group("/v2", GetNextMiddleWare)
 
 	// Get Chats
-	app.Get(base+"/chats", middleware.VerifyJwtWithClaim(chat.GetChats))
+	v1.Get(base+"/chats", middleware.VerifyJwtWithClaim(chat.GetChats))
 	// Create Chat
-	app.Post(base+"/chats", middleware.VerifyJwtWithClaim(chat.CreateChat))
+	v1.Post(base+"/chats", middleware.VerifyJwtWithClaim(chat.CreateChat))
 	// Update Chat
-	app.Put(base+"/chats", middleware.VerifyJwtWithClaim(chat.UpdateChat))
+	v1.Put(base+"/chats", middleware.VerifyJwtWithClaim(chat.UpdateChat))
 
-	go chat.HubRunner()
-	app.Use(base, chat.GetSocketUpgrade)
-	app.Get(base+"/:sess/:id", websocket.New(chat.ChatConnection))
+	v1.Use(base, chat.GetSocketUpgrade)
+	v1.Get(base+"/:sess/:id", websocket.New(chat.ChatConnection))
+
+	// Get User Connection and handle logic
+	v2.Get(base+"/:sess", websocket.New(chat.AuthWebSocket))
 }

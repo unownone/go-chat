@@ -2,10 +2,8 @@ package auth
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v4"
 	"github.com/unownone/go-chat/app/response"
 	"github.com/unownone/go-chat/db"
 	"go.mongodb.org/mongo-driver/bson"
@@ -23,15 +21,6 @@ func Signup(c *fiber.Ctx) error {
 			Error:   true,
 		})
 	}
-	user.Password, err = hashPassword(user.Password)
-	if err != nil {
-		return c.JSON(
-			response.Error{
-				Message: "Invalid Password",
-				Error:   true,
-			},
-		)
-	}
 	result := users.FindOne(context.TODO(), bson.M{"email": user.Email})
 	if result.Err() == nil {
 		return c.JSON(
@@ -42,6 +31,15 @@ func Signup(c *fiber.Ctx) error {
 		)
 	}
 	user.ID = primitive.NewObjectID()
+	user.Password, err = hashPassword(user.Password)
+	if err != nil {
+		return c.JSON(
+			response.Error{
+				Message: "Invalid Password",
+				Error:   true,
+			},
+		)
+	}
 	_, err = users.InsertOne(context.TODO(), user)
 	if err != nil {
 		return c.JSON(
@@ -67,14 +65,6 @@ func Signup(c *fiber.Ctx) error {
 			},
 		)
 	}
-}
-
-func CurrentUser(c *fiber.Ctx, claims *jwt.RegisteredClaims) error {
-	return c.JSON(
-		fiber.Map{
-			"user": claims.Issuer,
-		},
-	)
 }
 
 func Login(c *fiber.Ctx) error {
@@ -114,7 +104,6 @@ func Login(c *fiber.Ctx) error {
 				Error:   true,
 			})
 		}
-		fmt.Println("token: ", token)
 		return c.JSON(
 			response.Success{
 				Access:  token,

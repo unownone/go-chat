@@ -55,11 +55,8 @@ func VerifyJwtWithClaim(wrapper func(c *fiber.Ctx, claims *jwt.RegisteredClaims)
 			return c.Status(401).SendString("Unauthorized")
 		}
 		claims := &jwt.RegisteredClaims{}
-		token := strings.Split(headers.Authorization, " ")
-		if len(token) != 2 {
-			return c.Status(401).SendString("Invalid Token Format.Unauthorized")
-		}
-		tkn, err := jwt.ParseWithClaims(token[1], claims, func(token *jwt.Token) (interface{}, error) {
+		token := strings.TrimPrefix(headers.Authorization, "Bearer ")
+		tkn, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
 			return jwt_key, nil
 		})
 		if err != nil {

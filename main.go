@@ -20,6 +20,7 @@ func main() {
 	}
 	app := fiber.New(*getConfig())
 
+	api := app.Group("/api", routes.GetNextMiddleWare)
 	// cors
 	app.Use(cors.New(*getCorsConfig()))
 	// static
@@ -29,13 +30,13 @@ func main() {
 	// 					Routes
 	// ********************************************
 
-	//Index Routes
+	//Index Routes HTML
 	routes.Index("/", app)
 	// Auth Routes
-	routes.Auth("/api/v1/auth", app)
+	routes.Auth("/auth", api)
 
 	// Chat Routes
-	routes.Chat("/api/v1/chat", app)
+	routes.Chat("/chat", api)
 
 	// 404 defualt status
 	app.Use(get404)
@@ -46,7 +47,7 @@ func main() {
 func getConfig() *fiber.Config {
 	return &fiber.Config{
 		Prefork:      true,
-		ServerHeader: "Go-Chat-Server",
+		ServerHeader: "iMon",
 		AppName:      "Go-Chat",
 		Immutable:    true,
 		Views:        getHandler(),

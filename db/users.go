@@ -9,10 +9,10 @@ import (
 )
 
 type User struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty"`
-	Name     string             `bson:"name,omitempty"`
-	Email    string             `bson:"email,omitempty"`
-	Password string             `bson:"password,omitempty"`
+	ID       primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Name     string             `bson:"name,omitempty" json:"name"`
+	Email    string             `bson:"email,omitempty" json:"email"`
+	Password string             `bson:"password,omitempty" json:"-"`
 }
 
 func GetCurrUser(claims *jwt.RegisteredClaims, user *User) error {

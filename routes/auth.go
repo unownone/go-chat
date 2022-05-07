@@ -7,10 +7,12 @@ import (
 )
 
 // Base Route = /api/v1/auth
-func Auth(base string, app *fiber.App) {
-
-	app.Post(base+"/register", auth.Signup)
-	app.Post(base+"/login", auth.Login)
-	app.Post(base+"/refresh", auth.RefreshToken)
-	app.Get(base+"/current-user", middleware.VerifyJwtWithClaim(auth.CurrentUser))
+func Auth(base string, app fiber.Router) {
+	// V1 Links
+	v1 := app.Group("/v1", GetNextMiddleWare)
+	v1.Post(base+"/register", auth.Signup)
+	v1.Post(base+"/login", auth.Login)
+	v1.Post(base+"/refresh", auth.RefreshToken)
+	v1.Get(base+"/current-user", middleware.VerifyJwtWithClaim(auth.CurrentUser))
+	v1.Get(base+"/user", auth.GetUserByEmail)
 }
