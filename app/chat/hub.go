@@ -1,6 +1,8 @@
 package chat
 
 import (
+	"fmt"
+
 	"github.com/gofiber/websocket/v2"
 )
 
@@ -107,6 +109,7 @@ func newHub(chatName string) *Hub {
 }
 
 func getCurrHub(chat string) *Hub {
+	fmt.Println(hubs.hubs[chat])
 	if hub, ok := hubs.hubs[chat]; ok {
 		return hub
 	} else {
