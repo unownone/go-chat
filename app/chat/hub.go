@@ -109,13 +109,12 @@ func newHub(chatName string) *Hub {
 }
 
 func getCurrHub(chat string) *Hub {
-	fmt.Println(hubs.hubs[chat])
+	fmt.Println(hubs.hubs)
 	if hub, ok := hubs.hubs[chat]; ok {
 		return hub
 	} else {
 		hub := newHub(chat)
 		hubs.hubs[chat] = hub
-		fmt.Println(hubs.hubs[chat])
 		hubs.run <- hub
 		return hub
 	}
