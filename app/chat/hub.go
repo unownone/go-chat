@@ -45,9 +45,11 @@ func HubRunner() {
 	for {
 		select {
 		case hub := <-hubs.run:
+			println("Starting hub", hub)
 			go hub.Run()
 
 		case hub := <-hubs.stop:
+			println("Stopping hub", hub)
 			hub.running <- false
 		}
 	}

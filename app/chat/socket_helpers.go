@@ -26,7 +26,6 @@ func startChat(h *Hub, c *websocket.Conn, user string, msg string) {
 			if old_h.is_running {
 				old_h.unregister <- c
 				println("Here is 3")
-
 			}
 			h.register <- c
 			h.is_running = true
