@@ -23,6 +23,7 @@ func main() {
 		}
 	}
 	app := fiber.New(*getConfig())
+	fmt.Println("Server Instance: ", app)
 	api := app.Group("/api", routes.GetNextMiddleWare)
 	// cors & logging
 	app.Use(cors.New(*getCorsConfig()))
