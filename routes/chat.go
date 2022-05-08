@@ -9,9 +9,6 @@ import (
 
 // Base Route = /api/:ver/chat
 func Chat(base string, app fiber.Router) {
-	// Get the hub Running
-	go chat.HubRunner()
-
 	// Versions
 	v1 := app.Group("/v1", GetNextMiddleWare)
 	v2 := app.Group("/v2", GetNextMiddleWare)

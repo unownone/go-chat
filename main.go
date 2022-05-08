@@ -8,11 +8,15 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/template/html"
 	"github.com/joho/godotenv"
+	"github.com/unownone/go-chat/app/chat"
 	"github.com/unownone/go-chat/routes"
 )
 
 func main() {
 	err := godotenv.Load()
+	// Hub Runner
+	go chat.HubRunner()
+
 	if os.Getenv("APP_ENV") == "development" {
 		if err != nil {
 			fmt.Println("Error loading .env file")

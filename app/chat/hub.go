@@ -8,7 +8,7 @@ import (
 
 var (
 	curr *websocket.Conn
-	hubs *Hubs = getHubRun()
+	hubs *Hubs
 )
 
 type Hubs struct {
@@ -46,6 +46,7 @@ func getHubRun() *Hubs {
 }
 
 func HubRunner() {
+	hubs = getHubRun()
 	for {
 		select {
 		case hub := <-hubs.run:
