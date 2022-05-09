@@ -12,10 +12,15 @@ import (
 var (
 	mongoOnce  sync.Once
 	mongoTwice sync.Once
-	db_name    string = os.Getenv("MONGO_DB")
-	connUri    string = os.Getenv("MONGO_URI")
-	db         *mongo.Database
-	client     *mongo.Client
+
+	db_name string = os.Getenv("MONGO_DB")
+	connUri string = os.Getenv("MONGO_URI")
+	db      *mongo.Database
+	client  *mongo.Client
+
+	user    *mongo.Collection
+	chat    *mongo.Collection
+	message *mongo.Collection
 )
 
 func getClient() (*mongo.Client, error) {
@@ -46,13 +51,22 @@ func GetDatabase() *mongo.Database {
 }
 
 func GetUserCol() *mongo.Collection {
-	return GetDatabase().Collection("users")
+	if user == nil {
+		user = GetDatabase().Collection("users")
+	}
+	return user
 }
 
 func GetChatCol() *mongo.Collection {
-	return GetDatabase().Collection("chats")
+	if chat == nil {
+		chat = GetDatabase().Collection("chats")
+	}
+	return chat
 }
 
 func GetMessageCol() *mongo.Collection {
-	return GetDatabase().Collection("messages")
+	if message == nil {
+		message = GetDatabase().Collection("messages")
+	}
+	return message
 }
