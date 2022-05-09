@@ -134,11 +134,16 @@
         socket = new WebSocket(`${proto}://${hst}:${prt}/api/v2/chat/${localStorage.getItem("access_token")}`);
         socket.onopen = function(e) {
             $("#chat_space").html("");
-            AddMessage(`Connected to WebSite`);
+            AddMessage(`Connected to Server`);
         };
         socket.onmessage = function(event) {
             AddMessage(event.data, false);
+            return false;
         };
+        socket.onclose = function(e) {
+            var message = "Disconnected from Chat due to idling.";
+            $("#chat_space").append(`<p class="messages" style="text-align:center;">${message}</p>`)
+        }
     }
 
     function AddMessage(message,send) {
