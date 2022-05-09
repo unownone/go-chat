@@ -123,6 +123,7 @@
     function openChat(id, name) {
         curr = id;
         $("#chat_heading").html(name);
+        $("#chat_space").html("");
         socket.send("!startChat "+id);
     }
 
