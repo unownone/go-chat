@@ -50,7 +50,7 @@ func main() {
 
 func getConfig() *fiber.Config {
 	return &fiber.Config{
-		Prefork:      true,
+		Prefork:      false, // Disable Prefork as need only 1 instance running
 		ServerHeader: "iMon",
 		AppName:      "Go-Chat",
 		Immutable:    true,
