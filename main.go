@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/pprof"
 	"github.com/gofiber/template/html"
 	"github.com/joho/godotenv"
 	"github.com/unownone/go-chat/app/chat"
@@ -17,13 +18,13 @@ func main() {
 	// Hub Runner
 	go chat.HubRunner()
 
-	if os.Getenv("APP_ENV") == "development" {
-		if err != nil {
-			fmt.Println("Error loading .env file")
-		}
+	if err != nil {
+		fmt.Println("Error loading .env file")
 	}
 	app := fiber.New(*getConfig())
-	fmt.Println("Server Instance: ", app)
+
+	app.Use(pprof.New())
+
 	api := app.Group("/api", routes.GetNextMiddleWare)
 	// cors & logging
 	app.Use(cors.New(*getCorsConfig()))
@@ -36,6 +37,7 @@ func main() {
 
 	//Index Routes HTML
 	routes.Index("/", app)
+
 	// Auth Routes
 	routes.Auth("/auth", api)
 
