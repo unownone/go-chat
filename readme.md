@@ -4,7 +4,9 @@
 ## Fast Fiber-ous Chat Application
 
 # Deployed At [heroku](https://go-chatify.herokuapp.com)
-<img width="682" alt="image" src="https://user-images.githubusercontent.com/38348296/169605033-df742930-20e9-4b31-b110-b669a17c8e28.png">
+<p align="center">
+<img  width="100%" alt="image" src="https://user-images.githubusercontent.com/38348296/169605033-df742930-20e9-4b31-b110-b669a17c8e28.png">
+</p>
 
 
 # Currently Supports:
