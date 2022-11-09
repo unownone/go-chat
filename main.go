@@ -1,26 +1,19 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/pprof"
 	"github.com/gofiber/template/html"
-	"github.com/joho/godotenv"
 	"github.com/unownone/go-chat/app/chat"
 	"github.com/unownone/go-chat/routes"
 )
 
 func main() {
-	err := godotenv.Load()
-	// Hub Runner
 	go chat.HubRunner()
 
-	if err != nil {
-		fmt.Println("Error loading .env file")
-	}
 	app := fiber.New(*getConfig())
 
 	app.Use(pprof.New())

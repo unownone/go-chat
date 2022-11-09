@@ -1,0 +1,19 @@
+services:
+  app:
+    build: .
+    ports:
+      - $PORT:$PORT
+    env_file:
+      - .env
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+  db:
+    image: bitnami/mongodb
+    ports:
+      - 27017:27017
+    env_file:
+      - .env
+    volumes:
+      - ./mongodb_data:/bitnami/mongodb
