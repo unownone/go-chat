@@ -16,7 +16,7 @@
 # Upcoming Features:
 - Invite to Chatrooms
 - Delete Messages
-- Tag Users
+- Tag Users!
 - Search for Users
 - Email Verification
 - Client Website and Application
