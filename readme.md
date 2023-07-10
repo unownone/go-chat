@@ -10,8 +10,8 @@
 
 
 # Currently Supports:
-- Creation of chatrooms
-- Adding users to chatroom
+- Creation of chatrooms!
+- Adding users to chatroom!
 - Messaging to chatroom using Pure Websockets
 # Upcoming Features:
 - Invite to Chatrooms
